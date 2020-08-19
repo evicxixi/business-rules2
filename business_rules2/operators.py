@@ -1,3 +1,4 @@
+from decimal import Decimal
 import inspect
 import re
 from functools import wraps
@@ -155,6 +156,7 @@ class BooleanType(BaseType):
     def is_false(self):
         return not self.value
 
+
 @export_type
 class SelectType(BaseType):
 
@@ -168,9 +170,8 @@ class SelectType(BaseType):
 
     @staticmethod
     def _case_insensitive_equal_to(value_from_list, other_value):
-        if isinstance(value_from_list, string_types) and \
-                isinstance(other_value, string_types):
-                    return value_from_list.lower() == other_value.lower()
+        if isinstance(value_from_list, string_types) and isinstance(other_value, string_types):
+            return value_from_list.lower() == other_value.lower()
         else:
             return value_from_list == other_value
 
