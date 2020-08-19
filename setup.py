@@ -1,21 +1,33 @@
-#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import setuptools
+from setuptools import setup, find_packages  # type: ignore
 
-from business_rules import __version__ as version
+# read the contents of your README file
+from os import path
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
-with open('HISTORY.rst') as f:
-    history = f.read()
-
-description = 'Python DSL for setting up business intelligence rules that can be configured without code'
-
-setuptools.setup(
-        name='business-rules',
-        version=version,
-        description='{0}\n\n{1}'.format(description, history),
-        author='Venmo',
-        author_email='open-source@venmo.com',
-        url='https://github.com/venmo/business-rules',
-        packages=['business_rules'],
-        license='MIT'
+setup(
+    name='business-rules2',
+    version='1.1.0',
+    author='Manfred Kaiser',
+    author_email='manfred.kaiser@logfile.at',
+    description='Python DSL for setting up business intelligence rules that can be configured without code',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    keywords="business rules engine",
+    python_requires='>= 3.6',
+    packages=find_packages(exclude=("tests",)),  # type: ignore
+    url="https://business-rules2.readthedocs.io/",
+    project_urls={
+        'Source': 'https://github.com/manfred-kaiser/business-rules2',
+        'Tracker': 'https://github.com/manfred-kaiser/business-rules2/issues',
+    },
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8"
+    ],
 )

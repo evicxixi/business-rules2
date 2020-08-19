@@ -155,7 +155,7 @@ rules = [
 To e.g. send to your client so it knows how to build rules
 
 ```python
-from business_rules import export_rule_data
+from business_rules2 import export_rule_data
 export_rule_data(ProductVariables, ProductActions)
 ```
 
@@ -207,7 +207,7 @@ that returns
 ### Run your rules
 
 ```python
-from business_rules import run_all
+from business_rules2 import run_all
 
 rules = _some_function_to_receive_from_client()
 

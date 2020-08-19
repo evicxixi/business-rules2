@@ -1,6 +1,7 @@
-from business_rules.variables import BaseVariables, rule_variable
-from business_rules.operators import StringType
+from business_rules2.variables import BaseVariables, rule_variable
+from business_rules2.operators import StringType
 from . import TestCase
+
 
 class VariablesClassTests(TestCase):
     """ Test methods on classes that inherit from BaseVariables
@@ -30,4 +31,3 @@ class VariablesClassTests(TestCase):
 
         # should work on an instance of the class too
         self.assertEqual(len(SomeVariables().get_all_variables()), 1)
-

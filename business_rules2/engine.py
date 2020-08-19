@@ -1,4 +1,5 @@
-from .fields import FIELD_NO_INPUT
+from business_rules2.fields import FIELD_NO_INPUT
+
 
 def run_all(rule_list,
             defined_variables,
@@ -13,6 +14,7 @@ def run_all(rule_list,
             if stop_on_first_trigger:
                 return True
     return rule_was_triggered
+
 
 def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
@@ -45,6 +47,7 @@ def check_conditions_recursively(conditions, defined_variables):
         assert not ('any' in keys or 'all' in keys)
         return check_condition(conditions, defined_variables)
 
+
 def check_condition(condition, defined_variables):
     """ Checks a single rule condition - the condition will be made up of
     variables, values, and the comparison operator. The defined_variables
@@ -54,6 +57,7 @@ def check_condition(condition, defined_variables):
     operator_type = _get_variable_value(defined_variables, name)
     return _do_operator_comparison(operator_type, op, value)
 
+
 def _get_variable_value(defined_variables, name):
     """ Call the function provided on the defined_variables object with the
     given name (raise exception if that doesn't exist) and casts it to the
@@ -62,11 +66,15 @@ def _get_variable_value(defined_variables, name):
     Returns an instance of operators.BaseType
     """
     def fallback(*args, **kwargs):
-        raise AssertionError("Variable {0} is not defined in class {1}".format(
-                name, defined_variables.__class__.__name__))
+        raise AssertionError(
+            "Variable {0} is not defined in class {1}".format(
+                name, defined_variables.__class__.__name__
+            )
+        )
     method = getattr(defined_variables, name, fallback)
     val = method()
     return method.field_type(val)
+
 
 def _do_operator_comparison(operator_type, operator_name, comparison_value):
     """ Finds the method on the given operator_type and compares it to the
@@ -88,9 +96,14 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
 def do_actions(actions, defined_actions):
     for action in actions:
         method_name = action['name']
+
         def fallback(*args, **kwargs):
-            raise AssertionError("Action {0} is not defined in class {1}"\
-                    .format(method_name, defined_actions.__class__.__name__))
+            raise AssertionError(
+                "Action {0} is not defined in class {1}".format(
+                    method_name,
+                    defined_actions.__class__.__name__
+                )
+            )
         params = action.get('params') or {}
         method = getattr(defined_actions, method_name, fallback)
         method(**params)

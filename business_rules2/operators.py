@@ -1,19 +1,24 @@
+from decimal import Decimal
 import inspect
 import re
 from functools import wraps
-from .six import string_types, integer_types
 
-from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
-                     FIELD_SELECT, FIELD_SELECT_MULTIPLE)
-from .utils import fn_name_to_pretty_label, float_to_decimal
-from decimal import Decimal, Inexact, Context
+from business_rules2.fields import (
+    FIELD_TEXT,
+    FIELD_NUMERIC,
+    FIELD_NO_INPUT,
+    FIELD_SELECT,
+    FIELD_SELECT_MULTIPLE
+)
+from business_rules2.utils import fn_name_to_pretty_label, float_to_decimal
+
 
 class BaseType(object):
     def __init__(self, value):
         self.value = self._assert_valid_value_and_cast(value)
 
     def _assert_valid_value_and_cast(self, value):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @classmethod
     def get_all_operators(cls):
@@ -25,7 +30,7 @@ class BaseType(object):
 
 
 def export_type(cls):
-    """ Decorator to expose the given class to business_rules.export_rule_data. """
+    """ Decorator to expose the given class to business_rules2.export_rule_data. """
     cls.export_in_rule_data = True
     return cls
 
@@ -62,7 +67,7 @@ class StringType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         value = value or ""
-        if not isinstance(value, string_types):
+        if not isinstance(value, str):
             raise AssertionError("{0} is not a valid string type.".
                                  format(value))
         return value
@@ -107,7 +112,7 @@ class NumericType(BaseType):
         if isinstance(value, float):
             # In python 2.6, casting float to Decimal doesn't work
             return float_to_decimal(value)
-        if isinstance(value, integer_types):
+        if isinstance(value, int):
             return Decimal(value)
         if isinstance(value, Decimal):
             return value
@@ -155,6 +160,7 @@ class BooleanType(BaseType):
     def is_false(self):
         return not self.value
 
+
 @export_type
 class SelectType(BaseType):
 
@@ -168,9 +174,8 @@ class SelectType(BaseType):
 
     @staticmethod
     def _case_insensitive_equal_to(value_from_list, other_value):
-        if isinstance(value_from_list, string_types) and \
-                isinstance(other_value, string_types):
-                    return value_from_list.lower() == other_value.lower()
+        if isinstance(value_from_list, str) and isinstance(other_value, str):
+            return value_from_list.lower() == other_value.lower()
         else:
             return value_from_list == other_value
 
