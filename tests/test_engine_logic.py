@@ -1,7 +1,7 @@
-from business_rules import engine
-from business_rules.variables import BaseVariables
-from business_rules.operators import StringType
-from business_rules.actions import BaseActions
+from business_rules2 import engine
+from business_rules2.variables import BaseVariables
+from business_rules2.operators import StringType
+from business_rules2.actions import BaseActions
 
 from mock import patch, MagicMock
 from . import TestCase
