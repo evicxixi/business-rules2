@@ -91,7 +91,7 @@ class IntegrationTests(TestCase):
                      'operator': 'equal_to',
                      'value': 'm'}
         err_string = 'Variable food is not defined in class SomeVariables'
-        with self.assertRaisesRegexp(AssertionError, err_string):
+        with self.assertRaisesRegex(AssertionError, err_string):
             check_condition(condition, SomeVariables())
 
     def test_check_incorrect_operator_name(self):

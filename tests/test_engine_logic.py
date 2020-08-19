@@ -190,5 +190,5 @@ class EngineTests(TestCase):
     def test_do_with_invalid_action(self):
         actions = [{'name': 'fakeone'}]
         err_string = "Action fakeone is not defined in class BaseActions"
-        with self.assertRaisesRegexp(AssertionError, err_string):
+        with self.assertRaisesRegex(AssertionError, err_string):
             engine.do_actions(actions, BaseActions())
