@@ -2,6 +2,7 @@ from business_rules2.variables import BaseVariables, rule_variable
 from business_rules2.operators import StringType
 from . import TestCase
 
+
 class VariablesClassTests(TestCase):
     """ Test methods on classes that inherit from BaseVariables
     """
