@@ -138,9 +138,17 @@ class EngineTests(TestCase):
 
     @patch.object(engine, 'check_condition')
     def test_nested_all_and_any(self, *args):
-        conditions = {'all': [
-            {'any': [{'name': 1}, {'name': 2}]},
-            {'name': 3}]}
+        conditions = {
+            'all': [
+                {
+                    'any': [
+                        {'name': 1},
+                        {'name': 2}
+                    ]
+                },
+                {'name': 3}
+            ]
+        }
         bv = BaseVariables()
 
         def side_effect(condition, _):
