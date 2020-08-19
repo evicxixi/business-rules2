@@ -1,11 +1,13 @@
 import inspect
-from .utils import fn_name_to_pretty_label
-from .operators import (BaseType,
-                        NumericType,
-                        StringType,
-                        BooleanType,
-                        SelectType,
-                        SelectMultipleType)
+from business_rules2.utils import fn_name_to_pretty_label
+from business_rules2.operators import (
+    BaseType,
+    NumericType,
+    StringType,
+    BooleanType,
+    SelectType,
+    SelectMultipleType
+)
 
 
 class BaseVariables(object):
