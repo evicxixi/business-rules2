@@ -29,9 +29,18 @@ Variables represent values in your system, usually the value of some particular 
 
 You define all the available variables for a certain kind of object in your code, and then later dynamically set the conditions and thresholds for those.
 
-For example:
+
+**For example:**
+
 
 ```python
+from business_rules2.variables import (
+    BaseVariables,
+    numeric_rule_variable,
+    string_rule_variable,
+    select_rule_variable
+)
+
 class ProductVariables(BaseVariables):
 
     def __init__(self, product):
@@ -42,7 +51,7 @@ class ProductVariables(BaseVariables):
         return self.product.current_inventory
 
     @numeric_rule_variable(label='Days until expiration')
-    def expiration_days(self)
+    def expiration_days(self):
         last_order = self.product.orders[-1]
         return (last_order.expiration_date - datetime.date.today()).days
 
@@ -62,6 +71,12 @@ These are the actions that are available to be taken when a condition is trigger
 For example:
 
 ```python
+from business_rules2.fields import FIELD_NUMERIC
+from business_rules2.actions import (
+    BaseActions,
+    rule_action
+)
+
 class ProductActions(BaseActions):
 
     def __init__(self, product):
@@ -81,6 +96,12 @@ class ProductActions(BaseActions):
 If you need a select field for an action parameter, another -more verbose- syntax is available:
 
 ```python
+from business_rules2.fields import FIELD_SELECT
+from business_rules2.actions import (
+    BaseActions,
+    rule_action
+)
+
 class ProductActions(BaseActions):
 
     def __init__(self, product):
@@ -109,48 +130,37 @@ An example of the resulting python lists/dicts is:
 
 ```python
 rules = [
-# expiration_days < 5 AND current_inventory > 20
-{ "conditions": { "all": [
-      { "name": "expiration_days",
-        "operator": "less_than",
-        "value": 5,
-      },
-      { "name": "current_inventory",
-        "operator": "greater_than",
-        "value": 20,
-      },
-  ]},
-  "actions": [
-      { "name": "put_on_sale",
-        "params": {"sale_percentage": 0.25},
-      },
-  ],
-},
-
-# current_inventory < 5 OR (current_month = "December" AND current_inventory < 20)
-{ "conditions": { "any": [
-      { "name": "current_inventory",
-        "operator": "less_than",
-        "value": 5,
-      },
-    ]},
-      { "all": [
-        {  "name": "current_month",
-          "operator": "equal_to",
-          "value": "December",
-        },
-        { "name": "current_inventory",
-          "operator": "less_than",
-          "value": 20,
-        }
-      ]},
-  },
-  "actions": [
-    { "name": "order_more",
-      "params":{"number_to_order": 40},
+  # expiration_days < 5 AND current_inventory > 20
+  {
+    "conditions": {
+       "all": [
+          {"name": "expiration_days", "operator": "less_than", "value": 5},
+          { "name": "current_inventory", "operator": "greater_than", "value": 20},
+      ]
     },
-  ],
-}]
+    "actions": [
+      {"name": "put_on_sale", "params": {"sale_percentage": 0.25}},
+    ],
+  },
+
+  # current_inventory < 5 OR (current_month = "December" AND current_inventory < 30)
+  {
+    "conditions": {
+      "any": [
+        {"name": "current_inventory", "operator": "less_than", "value": 5},
+        {
+          "all": [
+            {"name": "current_month", "operator": "equal_to", "value": "December"},
+            { "name": "current_inventory", "operator": "less_than", "value": 30}
+          ]
+        },
+      ],
+    },
+    "actions": [
+      { "name": "order_more", "params":{"number_to_order": 40}}
+    ],
+  }
+]
 ```
 
 ### Export the available variables, operators and actions
@@ -215,11 +225,12 @@ from business_rules2 import run_all
 rules = _some_function_to_receive_from_client()
 
 for product in Products.objects.all():
-    run_all(rule_list=rules,
-            defined_variables=ProductVariables(product),
-            defined_actions=ProductActions(product),
-            stop_on_first_trigger=True
-           )
+    run_all(
+        rule_list=rules,
+        defined_variables=ProductVariables(product),
+        defined_actions=ProductActions(product),
+        stop_on_first_trigger=False
+    )
 ```
 
 ## API
@@ -279,17 +290,3 @@ Note: to compare floating point equality we just check that the difference is le
 * `shares_at_least_one_element_with`
 * `shares_exactly_one_element_with`
 * `shares_no_elements_with`
-
-### Returning data to your client
-
-
-
-## Contributing
-
-Open up a pull request, making sure to add tests for any new functionality. To set up the dev environment (assuming you're using [virtualenvwrapper](http://docs.python-guide.org/en/latest/dev/virtualenvs/#virtualenvwrapper)):
-
-```bash
-$ mkvirtualenv business-rules
-$ pip install -r dev-requirements.txt
-$ nosetests
-```
