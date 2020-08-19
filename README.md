@@ -1,7 +1,13 @@
 business-rules
 ==============
 
-[![Build Status](https://travis-ci.org/venmo/business-rules.svg?branch=master)](https://travis-ci.org/venmo/business-rules)
+[![CodeFactor](https://www.codefactor.io/repository/github/manfred-kaiser/business-rules2/badge)](https://www.codefactor.io/repository/github/manfred-kaiser/business-rules2)
+[![Github version](https://img.shields.io/github/v/release/manfred-kaiser/business-rules2?label=github&logo=github)](https://github.com/manfred-kaiser/business-rules2/releases)
+[![PyPI version](https://img.shields.io/pypi/v/business-rules2.svg?logo=pypi&logoColor=FFE873)](https://pypi.org/project/business-rules2/)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/business-rules2.svg?logo=python&logoColor=FFE873)](https://pypi.org/project/business-rules2/)
+[![PyPI downloads](https://pepy.tech/badge/business-rules2/month)](https://pepy.tech/project/business-rules2/month)
+[![GitHub](https://img.shields.io/github/license/manfred-kaiser/business-rules2.svg)](LICENSE)
+
 
 As a software system grows in complexity and usage, it can become burdensome if
 every change to the logic/behavior of the system also requires you to write and
@@ -14,9 +20,6 @@ marketing logic around when certain customers or items are eligible for a
 discount or to automate emails after users enter a certain state or go through
 a particular sequence of events.
 
-<p align="center">
-    <img src="http://cdn.memegenerator.net/instances/400x/36514579.jpg" />
-</p>
 
 ## Usage
 
