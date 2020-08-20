@@ -140,9 +140,12 @@ class ExpressionParser():
         self._query = self._create_parser()
 
     def parse(self, text):
+        return self._translate(self._parse(text))
+
+    def _parse(self, text):
         return self._query.parseString(text).asList()[0]
 
-    def translate(self, rules):
+    def _translate(self, rules):
         operator = 'all'
         conditions = {}
         expressions = []
@@ -154,7 +157,7 @@ class ExpressionParser():
                 else:
                     operator = 'any'
             elif isinstance(entry, list):
-                expressions.append(self.translate(entry))
+                expressions.append(self._translate(entry))
             elif isinstance(entry, ComparisonExpr):
                 expressions.append(entry.convert())
             else:
