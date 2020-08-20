@@ -262,12 +262,22 @@ class RuleParser():
         return self.expression_parser.parse("".join(conditions))
 
     def parse_actions(self, actions):
+        def convert(value):
+            if value.startswith("'"):
+                return value
+            if value.startswith("["):
+                raise NotImplementedError()
+            if value.lower() in ['true', 'false']:
+                return value.lower() == 'true'
+            if '.' in value:
+                return float(value)
+            return int(value)
         parsed_actions = []
         for action in actions:
             func_name, func_args = action.strip().strip(")").rsplit("(", 1)
             args = [fa.strip(",").strip().split("=", 1) for fa in shlex.split(func_args)]
             parsed_actions.append({
                 'name': func_name,
-                'params': {arg[0]: arg[1] for arg in args}
+                'params': {arg[0]: convert(arg[1]) for arg in args}
             })
         return parsed_actions
