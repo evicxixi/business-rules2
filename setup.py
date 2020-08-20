@@ -30,6 +30,9 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8"
     ],
+    install_requires=[
+        'pyparsing'
+    ],
     extras_require={
         'dev': [
             'pytest',
