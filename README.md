@@ -1,12 +1,12 @@
 business-rules
 ==============
 
-[![CodeFactor](https://www.codefactor.io/repository/github/manfred-kaiser/business-rules2/badge)](https://www.codefactor.io/repository/github/manfred-kaiser/business-rules2)
-[![Github version](https://img.shields.io/github/v/release/manfred-kaiser/business-rules2?label=github&logo=github)](https://github.com/manfred-kaiser/business-rules2/releases)
+[![CodeFactor](https://www.codefactor.io/repository/github/logfile-at/business-rules2/badge)](https://www.codefactor.io/repository/github/logfile-at/business-rules2)
+[![Github version](https://img.shields.io/github/v/release/logfile-at/business-rules2?label=github&logo=github)](https://github.com/logfile-at/business-rules2/releases)
 [![PyPI version](https://img.shields.io/pypi/v/business-rules2.svg?logo=pypi&logoColor=FFE873)](https://pypi.org/project/business-rules2/)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/business-rules2.svg?logo=python&logoColor=FFE873)](https://pypi.org/project/business-rules2/)
 [![PyPI downloads](https://pepy.tech/badge/business-rules2/month)](https://pepy.tech/project/business-rules2/month)
-[![GitHub](https://img.shields.io/github/license/manfred-kaiser/business-rules2.svg)](LICENSE)
+[![GitHub](https://img.shields.io/github/license/logfile-at/business-rules2.svg)](LICENSE)
 
 
 As a software system grows in complexity and usage, it can become burdensome if
@@ -41,6 +41,15 @@ from business_rules2.variables import (
     select_rule_variable
 )
 
+class Products():
+
+    def __init__(self):
+        self.stock_state = 0
+        self.related_products = 2
+        self.current_inventory = 3
+        self.expire_in_days = 2
+
+
 class ProductVariables(BaseVariables):
 
     def __init__(self, product):
@@ -52,16 +61,12 @@ class ProductVariables(BaseVariables):
 
     @numeric_rule_variable(label='Days until expiration')
     def expiration_days(self):
-        last_order = self.product.orders[-1]
-        return (last_order.expiration_date - datetime.date.today()).days
+        return self.product.expire_in_days
 
     @string_rule_variable()
     def current_month(self):
         return datetime.datetime.now().strftime("%B")
 
-    @select_rule_variable(options=Products.top_holiday_items())
-    def goes_well_with(self):
-        return products.related_products
 ```
 
 ### 2. Define your set of actions
@@ -82,42 +87,13 @@ class ProductActions(BaseActions):
     def __init__(self, product):
         self.product = product
 
-    @rule_action(params={"sale_percentage": FIELD_NUMERIC})
-    def put_on_sale(self, sale_percentage):
-        self.product.price = (1.0 - sale_percentage) * self.product.price
-        self.product.save()
-
-    @rule_action(params={"number_to_order": FIELD_NUMERIC})
-    def order_more(self, number_to_order):
-        ProductOrder.objects.create(product_id=self.product.id,
-                                    quantity=number_to_order)
-```
-
-If you need a select field for an action parameter, another -more verbose- syntax is available:
-
-```python
-from business_rules2.fields import FIELD_SELECT
-from business_rules2.actions import (
-    BaseActions,
-    rule_action
-)
-
-class ProductActions(BaseActions):
-
-    def __init__(self, product):
-        self.product = product
-
-    @rule_action(params=[{'fieldType': FIELD_SELECT,
-                          'name': 'stock_state',
-                          'label': 'Stock state',
-                          'options': [
-                            {'label': 'Available', 'name': 'available'},
-                            {'label': 'Last items', 'name': 'last_items'},
-                            {'label': 'Out of stock', 'name': 'out_of_stock'}
-                        ]}])
+    @rule_action()
     def change_stock_state(self, stock_state):
         self.product.stock_state = stock_state
-        self.product.save()
+
+    @rule_action()
+    def order_more(self, number_to_order):
+        self.product.stock_state += number_to_order
 ```
 
 ### 3. Build the rules
@@ -144,74 +120,41 @@ then
 end
 ```
 
-### Export the available variables, operators and actions
-
-To e.g. send to your client so it knows how to build rules
-
-```python
-from business_rules2 import export_rule_data
-export_rule_data(ProductVariables, ProductActions)
-```
-
-that returns
-
-```python
-{"variables": [
-    { "name": "expiration_days",
-      "label": "Days until expiration",
-      "field_type": "numeric",
-      "options": []},
-    { "name": "current_month",
-      "label": "Current Month",
-      "field_type": "string",
-      "options": []},
-    { "name": "goes_well_with",
-      "label": "Goes Well With",
-      "field_type": "select",
-      "options": ["Eggnog", "Cookies", "Beef Jerkey"]}
-                ],
-  "actions": [
-    { "name": "put_on_sale",
-      "label": "Put On Sale",
-      "params": {"sale_percentage": "numeric"}},
-    { "name": "order_more",
-      "label": "Order More",
-      "params": {"number_to_order": "numeric"}}
-  ],
-  "variable_type_operators": {
-    "numeric": [ {"name": "equal_to",
-                  "label": "Equal To",
-                  "input_type": "numeric"},
-                 {"name": "less_than",
-                  "label": "Less Than",
-                  "input_type": "numeric"},
-                 {"name": "greater_than",
-                  "label": "Greater Than",
-                  "input_type": "numeric"}],
-    "string": [ { "name": "equal_to",
-                  "label": "Equal To",
-                  "input_type": "text"},
-                { "name": "non_empty",
-                  "label": "Non Empty",
-                  "input_type": "none"}]
-  }
-}
-```
-
 ### Run your rules
 
 ```python
 from business_rules2 import run_all
 
-rules = _some_function_to_receive_from_client()
+from business_rules2.parser import RuleParser
 
-for product in Products.objects.all():
-    run_all(
-        rule_list=rules,
-        defined_variables=ProductVariables(product),
-        defined_actions=ProductActions(product),
-        stop_on_first_trigger=False
-    )
+
+rules = """
+rule "expired foods"
+when
+    expiration_days < 5 AND current_inventory > 20
+then
+    put_on_sale(sale_percentage=0.25, value=25)
+end
+
+rule "christmas time"
+when
+    current_inventory < 5 OR (current_month = 'December' AND current_inventory < 30)
+then
+    order_more(number_to_order=40)
+end
+"""
+
+product = Products()
+parser = RuleParser()
+rules_translated = parser.parsestr(rules)
+
+run_all(
+    rule_list=rules_translated,
+    defined_variables=ProductVariables(product),
+    defined_actions=ProductActions(product),
+    stop_on_first_trigger=True
+)
+
 ```
 
 ## API
