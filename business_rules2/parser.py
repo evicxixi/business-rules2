@@ -12,6 +12,15 @@ from pyparsing import (
     opAssoc
 )
 
+from typing import (
+    Any,
+    Text,
+    Dict,
+    List,
+    Union,
+    Optional
+)
+
 
 class Comparison:
 
@@ -24,7 +33,7 @@ class Comparison:
 
 class ComparisonExpr:
 
-    OPERATORS = {
+    OPERATORS: Dict[Text, Dict[Any, Union[Comparison, Dict[Any, Comparison]]]] = {
         '=': {
             int: Comparison('equal_to'),
             str: Comparison('equal_to')
@@ -82,13 +91,13 @@ class ComparisonExpr:
     }
 
     def __init__(self, tokens):
-        self.tokens = tokens.asList()
-        self.field = self.tokens[0]
+        self.tokens: List[Any] = tokens.asList()  # type: ignore
+        self.field: Text = self.tokens[0]
         self.operator = self.tokens[1]
-        self.value = self._parse_value(self.tokens[2])
+        self.value: Any = self._parse_value(self.tokens[2])
 
     @staticmethod
-    def _parse_value(value):
+    def _parse_value(value: Text) -> Any:
         if value == 'notblank' or value.startswith("'"):
             return value
         if value.startswith("["):
@@ -99,7 +108,7 @@ class ComparisonExpr:
             return float(value)
         return int(value)
 
-    def convert(self):
+    def convert(self) -> Optional[Dict[Text, Any]]:
         compare_method = self.OPERATORS[self.operator]
         for value_type, value_comparison in compare_method.items():
             if isinstance(self.value, value_type):
@@ -112,6 +121,7 @@ class ComparisonExpr:
                     "operator": operator,
                     "value": self.value
                 }
+        return None
 
     def __str__(self):
         return "Comparison:('field': {}, 'operator': {}, 'value': {}, type: {})".format(
@@ -139,14 +149,14 @@ class ExpressionParser():
     def __init__(self) -> None:
         self._query = self._create_parser()
 
-    def parse(self, text):
+    def parse(self, text: Text):
         return self._translate(self._parse(text))
 
-    def _parse(self, text):
-        return self._query.parseString(text).asList()[0]
+    def _parse(self, text: Text) -> List[Union["ComparisonExpr", List[Any], "LogicExpr"]]:
+        return self._query.parseString(text).asList()[0]  # type: ignore
 
-    def _translate(self, rules):
-        operator = 'all'
+    def _translate(self, rules: List[Union["ComparisonExpr", List[Any], "LogicExpr"]]) -> Dict[Text, List[Dict[Text, Any]]]:
+        operator: Text = 'all'
         conditions = {}
         expressions = []
         # find opeator
@@ -158,15 +168,15 @@ class ExpressionParser():
                     operator = 'any'
             elif isinstance(entry, list):
                 expressions.append(self._translate(entry))
-            elif isinstance(entry, ComparisonExpr):
+            elif isinstance(entry, ComparisonExpr):  # type: ignore
                 expressions.append(entry.convert())
             else:
                 raise ValueError()
         conditions[operator] = expressions
         return conditions
 
-    def describe(self, text):
-        def create_description(result, indent=0):
+    def describe(self, text: Text) -> None:
+        def create_description(result, indent: int = 0) -> None:
             for x in result:
                 if isinstance(x, list):
                     create_description(x, indent + 1)
@@ -216,8 +226,8 @@ class RuleParser():
     def __init__(self) -> None:
         self.expression_parser = ExpressionParser()
 
-    def parsestr(self, text):
-        rules = OrderedDict()
+    def parsestr(self, text: Text) -> List[Dict[Text, Any]]:
+        rules: OrderedDict[Text, Dict[Text, List[Text]]] = OrderedDict()
         rulename = None
         is_condition = False
         is_action = False
@@ -245,9 +255,9 @@ class RuleParser():
                 ignore_line = True
                 is_condition = False
                 is_action = False
-            if is_condition and not ignore_line:
+            if rulename and is_condition and not ignore_line:
                 rules[rulename]['conditions'].append(line.strip())
-            if is_action and not ignore_line:
+            if rulename and is_action and not ignore_line:
                 rules[rulename]['actions'].append(line.strip())
         rules_formated = [
             {
@@ -258,11 +268,11 @@ class RuleParser():
         ]
         return rules_formated
 
-    def parse_conditions(self, conditions):
+    def parse_conditions(self, conditions: List[Text]):
         return self.expression_parser.parse("".join(conditions))
 
-    def parse_actions(self, actions):
-        def convert(value):
+    def parse_actions(self, actions: List[Text]):
+        def convert(value: Any) -> Any:
             if value.startswith("'"):
                 return value.strip("'")
             if value.startswith("["):

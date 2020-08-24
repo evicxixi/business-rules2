@@ -1,13 +1,38 @@
 from business_rules2.fields import FIELD_NO_INPUT
+from business_rules2.parser import RuleParser
+
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Text,
+    Optional,
+    Union
+)
+if TYPE_CHECKING:
+    from business_rules2.variables import BaseVariables
+    from business_rules2.actions import BaseActions
 
 
-def run_all(rule_list,
-            defined_variables,
-            defined_actions,
-            stop_on_first_trigger=False):
+def run_all(
+    rule_list: Union[Text, Dict[Text, Any], List[Dict[Text, Any]]],
+    defined_variables: BaseVariables,
+    defined_actions: BaseActions,
+    stop_on_first_trigger: bool = False
+) -> bool:
+
+    if isinstance(rule_list, list):
+        parsed_rules = rule_list
+    elif isinstance(rule_list, dict):
+        parsed_rules = [rule_list]
+    elif isinstance(rule_list, str):
+        parsed_rules = RuleParser().parsestr(rule_list)
+    else:
+        raise ValueError('Rules can not be pasred! Invalid rules')
 
     rule_was_triggered = False
-    for rule in rule_list:
+    for rule in parsed_rules:
         result = run(rule, defined_variables, defined_actions)
         if result:
             rule_was_triggered = True
@@ -16,8 +41,22 @@ def run_all(rule_list,
     return rule_was_triggered
 
 
-def run(rule, defined_variables, defined_actions):
-    conditions, actions = rule['conditions'], rule['actions']
+def run(
+    rule: Union[Text, Dict[Text, Any]],
+    defined_variables: BaseVariables,
+    defined_actions: BaseActions
+) -> bool:
+    rule_parsed: Optional[Dict[Text, Any]] = None
+    if isinstance(rule, str):
+        rules: List[Dict[Text, Any]] = RuleParser().parsestr(rule)
+        if len(rules) == 1:
+            rule_parsed = rules[0]
+    elif isinstance(rule, dict):  # type: ignore
+        rule_parsed = rule
+    if not rule_parsed:
+        raise ValueError()
+
+    conditions, actions = rule_parsed['conditions'], rule_parsed['actions']
     rule_triggered = check_conditions_recursively(conditions, defined_variables)
     if rule_triggered:
         do_actions(actions, defined_actions)

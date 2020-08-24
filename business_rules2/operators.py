@@ -12,8 +12,16 @@ from business_rules2.fields import (
 )
 from business_rules2.utils import fn_name_to_pretty_label, float_to_decimal
 
+from typing import (
+    Type,
+    Text
+)
+
 
 class BaseType(object):
+
+    export_in_rule_data: bool = False
+
     def __init__(self, value):
         self.value = self._assert_valid_value_and_cast(value)
 
@@ -29,7 +37,7 @@ class BaseType(object):
                 for m in methods if getattr(m[1], 'is_operator', False)]
 
 
-def export_type(cls):
+def export_type(cls: Type[BaseType]) -> Type[BaseType]:
     """ Decorator to expose the given class to business_rules2.export_rule_data. """
     cls.export_in_rule_data = True
     return cls
@@ -66,38 +74,38 @@ class StringType(BaseType):
     name = "string"
 
     def _assert_valid_value_and_cast(self, value):
-        value = value or ""
-        if not isinstance(value, str):
+        value: Text = value or ""
+        if not isinstance(value, str):  # type: ignore
             raise AssertionError("{0} is not a valid string type.".
                                  format(value))
         return value
 
     @type_operator(FIELD_TEXT)
-    def equal_to(self, other_string):
+    def equal_to(self, other_string: Text) -> bool:
         return self.value == other_string
 
     @type_operator(FIELD_TEXT, label="Equal To (case insensitive)")
-    def equal_to_case_insensitive(self, other_string):
+    def equal_to_case_insensitive(self, other_string: Text) -> bool:
         return self.value.lower() == other_string.lower()
 
     @type_operator(FIELD_TEXT)
-    def starts_with(self, other_string):
+    def starts_with(self, other_string: Text) -> bool:
         return self.value.startswith(other_string)
 
     @type_operator(FIELD_TEXT)
-    def ends_with(self, other_string):
+    def ends_with(self, other_string: Text) -> bool:
         return self.value.endswith(other_string)
 
     @type_operator(FIELD_TEXT)
-    def contains(self, other_string):
+    def contains(self, other_string: Text) -> bool:
         return other_string in self.value
 
     @type_operator(FIELD_TEXT)
-    def matches_regex(self, regex):
+    def matches_regex(self, regex) -> bool:
         return re.search(regex, self.value)
 
     @type_operator(FIELD_NO_INPUT)
-    def non_empty(self):
+    def non_empty(self) -> bool:
         return bool(self.value)
 
 
@@ -121,23 +129,23 @@ class NumericType(BaseType):
                                  format(value))
 
     @type_operator(FIELD_NUMERIC)
-    def equal_to(self, other_numeric):
+    def equal_to(self, other_numeric) -> bool:
         return abs(self.value - other_numeric) <= self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
-    def greater_than(self, other_numeric):
+    def greater_than(self, other_numeric) -> bool:
         return (self.value - other_numeric) > self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
-    def greater_than_or_equal_to(self, other_numeric):
+    def greater_than_or_equal_to(self, other_numeric) -> bool:
         return self.greater_than(other_numeric) or self.equal_to(other_numeric)
 
     @type_operator(FIELD_NUMERIC)
-    def less_than(self, other_numeric):
+    def less_than(self, other_numeric) -> bool:
         return (other_numeric - self.value) > self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
-    def less_than_or_equal_to(self, other_numeric):
+    def less_than_or_equal_to(self, other_numeric) -> bool:
         return self.less_than(other_numeric) or self.equal_to(other_numeric)
 
 
@@ -153,11 +161,11 @@ class BooleanType(BaseType):
         return value
 
     @type_operator(FIELD_NO_INPUT)
-    def is_true(self):
+    def is_true(self) -> bool:
         return self.value
 
     @type_operator(FIELD_NO_INPUT)
-    def is_false(self):
+    def is_false(self) -> bool:
         return not self.value
 
 
@@ -180,14 +188,14 @@ class SelectType(BaseType):
             return value_from_list == other_value
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
-    def contains(self, other_value):
+    def contains(self, other_value) -> bool:
         for val in self.value:
             if self._case_insensitive_equal_to(val, other_value):
                 return True
         return False
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
-    def does_not_contain(self, other_value):
+    def does_not_contain(self, other_value) -> bool:
         for val in self.value:
             if self._case_insensitive_equal_to(val, other_value):
                 return False
@@ -199,14 +207,14 @@ class SelectMultipleType(BaseType):
 
     name = "select_multiple"
 
-    def _assert_valid_value_and_cast(self, value):
+    def _assert_valid_value_and_cast(self, value) -> bool:
         if not hasattr(value, '__iter__'):
             raise AssertionError("{0} is not a valid select multiple type".
                                  format(value))
         return value
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def contains_all(self, other_value):
+    def contains_all(self, other_value) -> bool:
         select = SelectType(self.value)
         for other_val in other_value:
             if not select.contains(other_val):
@@ -214,12 +222,12 @@ class SelectMultipleType(BaseType):
         return True
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def is_contained_by(self, other_value):
+    def is_contained_by(self, other_value) -> bool:
         other_select_multiple = SelectMultipleType(other_value)
         return other_select_multiple.contains_all(self.value)
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def shares_at_least_one_element_with(self, other_value):
+    def shares_at_least_one_element_with(self, other_value) -> bool:
         select = SelectType(self.value)
         for other_val in other_value:
             if select.contains(other_val):
@@ -227,7 +235,7 @@ class SelectMultipleType(BaseType):
         return False
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def shares_exactly_one_element_with(self, other_value):
+    def shares_exactly_one_element_with(self, other_value) -> bool:
         found_one = False
         select = SelectType(self.value)
         for other_val in other_value:
@@ -238,5 +246,5 @@ class SelectMultipleType(BaseType):
         return found_one
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def shares_no_elements_with(self, other_value):
+    def shares_no_elements_with(self, other_value) -> bool:
         return not self.shares_at_least_one_element_with(other_value)
