@@ -1,8 +1,9 @@
 from business_rules2.fields import FIELD_NO_INPUT
 from business_rules2.parser import RuleParser
+from business_rules2.variables import BaseVariables
+from business_rules2.actions import BaseActions
 
 from typing import (
-    TYPE_CHECKING,
     Any,
     Dict,
     List,
@@ -10,9 +11,6 @@ from typing import (
     Optional,
     Union
 )
-if TYPE_CHECKING:
-    from business_rules2.variables import BaseVariables
-    from business_rules2.actions import BaseActions
 
 
 def run_all(
