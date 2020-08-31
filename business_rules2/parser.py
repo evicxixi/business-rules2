@@ -251,7 +251,7 @@ class RuleParser():
                 rules[rulename]['actions'].append(line.strip())
         rules_formated = [
             {
-                'name': rule_name,
+                'rulename': rule_name,
                 'conditions': self.parse_conditions(rule_body['conditions']),
                 'actions': self.parse_actions(rule_body['actions'])
             } for rule_name, rule_body in rules.items()
@@ -264,7 +264,7 @@ class RuleParser():
     def parse_actions(self, actions):
         def convert(value):
             if value.startswith("'"):
-                return value
+                return value.strip("'")
             if value.startswith("["):
                 raise NotImplementedError()
             if value.lower() in ['true', 'false']:
