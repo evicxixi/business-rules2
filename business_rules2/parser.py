@@ -143,13 +143,16 @@ class ExpressionParser():
         return self._translate(self._parse(text))
 
     def _parse(self, text):
-        return self._query.parseString(text).asList()[0]
+
+        lists_ =  self._query.parseString(text).asList()
+        return lists_[0] if isinstance(lists_[0], list ) else lists_
 
     def _translate(self, rules):
         operator = 'all'
         conditions = {}
         expressions = []
         # find opeator
+        print(rules)
         for entry in rules:
             if isinstance(entry, LogicExpr):
                 if entry.operator == 'AND':
@@ -276,6 +279,7 @@ class RuleParser():
         for action in actions:
             func_name, func_args = action.strip().strip(")").rsplit("(", 1)
             args = [fa.strip(",").strip().split("=", 1) for fa in shlex.split(func_args)]
+            print(args)
             parsed_actions.append({
                 'name': func_name,
                 'params': {arg[0]: convert(arg[1]) for arg in args}

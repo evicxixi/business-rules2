@@ -4,11 +4,12 @@ from business_rules2.parser import RuleParser
 from parsimonious.grammar import Grammar
 from parsimonious.nodes import NodeVisitor
 from parsimonious.nodes import Node
+from parsimonious.exceptions import VisitationError
 import re
 import typing
 
 
-class SyntaxCheck(grammar: str):
+class SyntaxCheck():
 
     grammar = None
     grammar_text= """
@@ -23,35 +24,62 @@ class SyntaxCheck(grammar: str):
     end = ~"\s?end\s?"
     """
     rules = None
+    visitor = None
+    tree = None
 
     def __init__(self, to_parse, grammar = grammar_text):
         self.grammar = Grammar(grammar)
         self.rules = to_parse
-    
-    def get_tree():
-        visitor = NodeVisitor()
-        visitor.grammar = self.grammar
-        if(is_syntax_correct(visitor)):
-            tree = grammar.parse(self.rules)
-            return tree
-        return None
+        self.visitor = NodeVisitor()
+        self.visitor.grammar = self.grammar
 
-    def is_syntax_correct(visitor):
+    def is_syntax_correct(self):
         try:
-            tree = grammar.parse(self.rules)
-        except Error:
+            self.tree = self.visitor.parse(self.rules)
+        except VisitationError:
             return False
         return True
+    
+    def get_tree(self):
+        
+        if(self.is_syntax_correct()):
+            return self.tree
+        return None
 
+    def get_correct_syntax(self):
+        
+        operators = ["<", ">", "<=", ">=", "="]
+        rules_help = ""
+        last_c = ""
+        next_c = ""
+        count = 0
+        text = self.rules
 
+        for c in text:
 
-
-
-#visitor = NodeVisitor()
-#visitor.grammar = grammar
-#visitor.parse(test)
-#tree = grammar.parse(test)
-
-#print(tree)
-#print(tree.children[2].children[1].text)
-#visitor.generic_visit("name")
+            #save store the chars before and next the current char
+            if count == 0:
+                last_c = None
+                next_c = text[1]
+            elif count == len(text)-1:
+                last_c = text[count-1]
+                next_c = None
+            else:
+                last_c = text[count-1]
+                next_c = text[count+1]
+                
+            count = count + 1
+            
+            #correct whitesapces
+            if c in operators:
+                if last_c != " ":
+                    rules_help = rules_help + " "
+                    
+                rules_help = rules_help + c
+                
+                if next_c != " ":
+                    rules_help = rules_help + " "
+            else:
+                rules_help = rules_help + c
+                
+        return rules_help
