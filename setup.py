@@ -11,8 +11,8 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setup(
     name='business-rules2',
     version='2.0.0',
-    author='Manfred Kaiser',
-    author_email='manfred.kaiser@logfile.at',
+    author='Laurenz Spanner',
+    author_email='laurenz.sp@gmail.com',
     description='Python DSL for setting up business intelligence rules that can be configured without code',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -21,8 +21,8 @@ setup(
     packages=find_packages(exclude=("tests",)),  # type: ignore
     url="https://business-rules2.readthedocs.io/",
     project_urls={
-        'Source': 'https://github.com/logfile-at/business-rules2/business-rules2',
-        'Tracker': 'https://github.com/logfile-at/business-rules2/issues',
+        'Source': 'https://github.com/laurenz-sp/business-rules2/business-rules2',
+        'Tracker': 'https://github.com/laurenz-sp/business-rules2/issues',
     },
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -32,6 +32,7 @@ setup(
     ],
     install_requires=[
         'pyparsing'
+        'parsimonious'
     ],
     extras_require={
         'dev': [
