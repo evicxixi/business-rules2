@@ -1,7 +1,7 @@
 business-rules
 ==============
 
-[![CodeFactor](https://www.codefactor.io/repository/github/manfred-kaiser/business-rules2/badge)](https://www.codefactor.io/repository/github/manfred-kaiser/business-rules2)
+[![CodeFactor](https://www.codefactor.io/repository/github/laurenz-sp/business-rules2/badge)](https://www.codefactor.io/repository/github/laurenz-sp/business-rules2)
 [![Github version](https://img.shields.io/github/v/release/manfred-kaiser/business-rules2?label=github&logo=github)](https://github.com/manfred-kaiser/business-rules2/releases)
 [![PyPI version](https://img.shields.io/pypi/v/business-rules2.svg?logo=pypi&logoColor=FFE873)](https://pypi.org/project/business-rules2/)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/business-rules2.svg?logo=python&logoColor=FFE873)](https://pypi.org/project/business-rules2/)
