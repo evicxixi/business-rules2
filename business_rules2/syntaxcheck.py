@@ -32,10 +32,13 @@ class SyntaxCheck():
         self.rules = to_parse
         self.visitor = NodeVisitor()
         self.visitor.grammar = self.grammar
+        print("hier")
 
     def is_syntax_correct(self):
         try:
             self.tree = self.visitor.parse(self.rules)
+        #find a way to throw the exception to inform the user where
+        #the syntax-error happend
         except VisitationError:
             return False
         return True
