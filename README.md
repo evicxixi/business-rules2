@@ -1,7 +1,6 @@
 business-rules
 ==============
 
-<<<<<<< HEAD
 [![CodeFactor](https://www.codefactor.io/repository/github/laurenz-sp/business-rules2/badge)](https://www.codefactor.io/repository/github/laurenz-sp/business-rules2)
 [![Github version](https://img.shields.io/github/v/release/manfred-kaiser/business-rules2?label=github&logo=github)](https://github.com/manfred-kaiser/business-rules2/releases)
 =======
