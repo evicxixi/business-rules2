@@ -10,15 +10,9 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='business-rules2',
-<<<<<<< HEAD
-    version='1.1.3',
-    author='Manfred Kaiser',
-    author_email='manfred.kaiser@logfile.at',
-=======
-    version='2.0.0',
+    version='1.1.4',
     author='Laurenz Spanner',
     author_email='laurenz.sp@gmail.com',
->>>>>>> feature_tests
     description='Python DSL for setting up business intelligence rules that can be configured without code',
     long_description=long_description,
     long_description_content_type='text/markdown',
