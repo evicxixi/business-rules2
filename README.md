@@ -3,10 +3,8 @@ business-rules
 
 [![CodeFactor](https://www.codefactor.io/repository/github/laurenz-sp/business-rules2/badge)](https://www.codefactor.io/repository/github/laurenz-sp/business-rules2)
 [![Github version](https://img.shields.io/github/v/release/manfred-kaiser/business-rules2?label=github&logo=github)](https://github.com/manfred-kaiser/business-rules2/releases)
-=======
 [![CodeFactor](https://www.codefactor.io/repository/github/logfile-at/business-rules2/badge)](https://www.codefactor.io/repository/github/logfile-at/business-rules2)
 [![Github version](https://img.shields.io/github/v/release/logfile-at/business-rules2?label=github&logo=github)](https://github.com/logfile-at/business-rules2/releases)
->>>>>>> feature_tests
 [![PyPI version](https://img.shields.io/pypi/v/business-rules2.svg?logo=pypi&logoColor=FFE873)](https://pypi.org/project/business-rules2/)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/business-rules2.svg?logo=python&logoColor=FFE873)](https://pypi.org/project/business-rules2/)
 [![PyPI downloads](https://pepy.tech/badge/business-rules2/month)](https://pepy.tech/project/business-rules2/month)
