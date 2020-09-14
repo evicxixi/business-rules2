@@ -14,7 +14,6 @@ setup(
     author='Laurenz Spanner',
     author_email='laurenz.sp@gmail.com',
     description='Python DSL for setting up business intelligence rules that can be configured without code',
-    long_description=long_description,
     long_description_content_type='text/markdown',
     keywords="business rules engine",
     python_requires='>= 3.6',
@@ -31,7 +30,7 @@ setup(
         "Programming Language :: Python :: 3.8"
     ],
     install_requires=[
-        'pyparsing'
+        'pyparsing',
         'parsimonious'
     ],
     extras_require={
