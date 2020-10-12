@@ -130,15 +130,15 @@ class ComparisonExpr:
 class SyntaxCheck:
 
         grammar = None
-        grammar_text= """
+        grammar_text= r"""
         rule = name when expression then action end
         name = ~"\s*rule\s*\'(\w+)\'"
         when = ~"\s*when\s*"
-        expression = ~"\s*" condition ~"(OR|AND)\s"(condition ~"\s*")*
+        expression = ~"\s*" condition ((~"(OR|AND)\s")* (condition ~"\s*")*)*
         then = ~"\s*then\s*"
-        condition = ~"\s*([a-z0-9A-Z_]+)\s*([=|>(=)?|<(=)?])\s*([a-z0-9A-Z_]+)\s*"
+        condition = ~"\s*([a-z0-9A-Z_]+)\s*(=|>=?|<=?)\s*([a-z0-9A-Z_]+)\s*"
         action = ~"\s*([a-z0-9A-Z_]+)\(" assignment (~",\s*" assignment)* ~"\)\s*"
-        assignment = ~"\s*([a-z0-9A-Z_]+)\=([a-z0-9A-Z_]+)\*?"
+        assignment = ~"\s*([a-z0-9A-Z_]+)\=([0-9]+|\'[a-z0-9A-Z_]+\')\s*"
         end = ~"\s*end\s*"
         """
         rules = None
@@ -355,6 +355,7 @@ class RuleParser():
 
     def parse_actions(self, actions):
         def convert(value):
+            print(value)
             if value.startswith("'"):
                 return value.strip("'")
             if value.startswith("["):
@@ -363,7 +364,10 @@ class RuleParser():
                 return value.lower() == 'true'
             if '.' in value:
                 return float(value)
-            return int(value)
+            if value.isdigit():
+                return int(value)
+            return value
+            
         parsed_actions = []
         for action in actions:
             func_name, func_args = action.strip().strip(")").rsplit("(", 1)
